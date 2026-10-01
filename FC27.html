@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FC27 Download</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #080808;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+/* شاشة التحميل */
+
+#downloadScreen {
+    position: fixed;
+    inset: 0;
+    background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.85)),
+        radial-gradient(circle at center, #263326, #050505 70%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.downloadBox {
+    width: 520px;
+    padding: 35px;
+    text-align: center;
+    background: rgba(10,10,10,.92);
+    border: 1px solid #444;
+    box-shadow: 0 0 40px rgba(0,255,100,.12);
+}
+
+.logo {
+    font-size: 58px;
+    font-weight: bold;
+    font-style: italic;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 35px;
+}
+
+#startButton {
+    width: 100%;
+    padding: 17px;
+    border: none;
+    background: #20d66b;
+    color: #061009;
+    font-size: 19px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#startButton:hover {
+    background: #38f17f;
+}
+
+#downloadStatus {
+    display: none;
+    margin-top: 25px;
+}
+
+.progressBox {
+    width: 100%;
+    height: 18px;
+    background: #222;
+    margin-top: 12px;
+}
+
+#downloadProgress {
+    width: 0%;
+    height: 100%;
+    background: #20d66b;
+}
+
+#downloadPercent {
+    margin-top: 10px;
+    font-family: Consolas, monospace;
+    color: #20d66b;
+}
+
+/* شاشة النظام */
+
+#systemScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: black;
+    text-align: center;
+    padding-top: 70px;
+}
+
+#warningTitle {
+    color: red;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+#systemStatus {
+    margin-top: 45px;
+    font-size: 20px;
+}
+
+#systemPercent {
+    color: lime;
+    font-family: Consolas, monospace;
+    font-size: 30px;
+    margin-top: 25px;
+}
+
+.systemBar {
+    width: 500px;
+    max-width: 80%;
+    height: 22px;
+    border: 1px solid #444;
+    margin: 25px auto;
+}
+
+#systemProgress {
+    width: 0%;
+    height: 100%;
+    background: lime;
+}
+
+/* النوافذ الوهمية */
+
+.fakeWindow {
+    position: fixed;
+    width: 300px;
+    height: 155px;
+    background: #111;
+    border: 2px solid #555;
+    color: white;
+    padding: 14px;
+    text-align: left;
+    direction: ltr;
+    box-shadow: 0 0 25px red;
+    font-family: Consolas, monospace;
+}
+
+.fakeWindow b {
+    color: red;
+}
+
+/* النهاية */
+
+#finalScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: black;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+#finalScreen h1 {
+    color: lime;
+    font-size: 45px;
+}
+
+#finalScreen p {
+    font-size: 22px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- شاشة تحميل اللعبة -->
+
+<div id="downloadScreen">
+
+    <div class="downloadBox">
+
+        <div class="logo">
+            FC27
+        </div>
+
+        <div class="subtitle">
+            Football Edition
+        </div>
+
+        <button id="startButton">
+            ابدأ تحميل اللعبة
+        </button>
+
+        <div id="downloadStatus">
+
+            <div id="downloadText">
+                جاري تحميل ملفات اللعبة...
+            </div>
+
+            <div class="progressBox">
+                <div id="downloadProgress"></div>
+            </div>
+
+            <div id="downloadPercent">
+                0%
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- شاشة الفحص الوهمية -->
+
+<div id="systemScreen">
+
+    <div id="warningTitle">
+        ⚠ SYSTEM WARNING ⚠
+    </div>
+
+    <div id="systemStatus">
+        جاري فحص ملفات النظام...
+    </div>
+
+    <div id="systemPercent">
+        0%
+    </div>
+
+    <div class="systemBar">
+        <div id="systemProgress"></div>
+    </div>
+
+</div>
+
+
+<!-- شاشة النهاية -->
+
+<div id="finalScreen">
+
+    <h1>
+        😂 وش فيك خفت؟
+    </h1>
+
+    <p>
+        مجرد مزحة يا وحش!
+    </p>
+
+    <p>
+        ما صار أي شيء لجهازك.
+    </p>
+
+</div>
+
+
+<script>
+
+const startButton =
+    document.getElementById("startButton");
+
+const downloadStatus =
+    document.getElementById("downloadStatus");
+
+const downloadProgress =
+    document.getElementById("downloadProgress");
+
+const downloadPercent =
+    document.getElementById("downloadPercent");
+
+const downloadText =
+    document.getElementById("downloadText");
+
+const downloadScreen =
+    document.getElementById("downloadScreen");
+
+const systemScreen =
+    document.getElementById("systemScreen");
+
+const systemStatus =
+    document.getElementById("systemStatus");
+
+const systemPercent =
+    document.getElementById("systemPercent");
+
+const systemProgress =
+    document.getElementById("systemProgress");
+
+const finalScreen =
+    document.getElementById("finalScreen");
+
+
+let audioContext;
+
+
+/* صوت التنبيه */
+
+function beep(frequency = 1000) {
+
+    try {
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+        oscillator.type = "square";
+
+        oscillator.frequency.value =
+            frequency;
+
+        gain.gain.setValueAtTime(
+            0.12,
+            audioContext.currentTime
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audioContext.currentTime + 0.3
+        );
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audioContext.destination
+        );
+
+        oscillator.start();
+
+        oscillator.stop(
+            audioContext.currentTime + 0.3
+        );
+
+    } catch (e) {}
+
+}
+
+
+/* الضغط على زر التحميل */
+
+startButton.addEventListener(
+    "click",
+    function() {
+
+        audioContext =
+            new (
+                window.AudioContext ||
+                window.webkitAudioContext
+            )();
+
+        audioContext.resume();
+
+        startButton.style.display =
+            "none";
+
+        downloadStatus.style.display =
+            "block";
+
+        downloadGame();
+
+    }
+);
+
+
+/* تحميل اللعبة الوهمي */
+
+function downloadGame(percent = 0) {
+
+    if (percent <= 100) {
+
+        downloadPercent.innerText =
+            percent + "%";
+
+        downloadProgress.style.width =
+            percent + "%";
+
+
+        if (percent < 30) {
+
+            downloadText.innerText =
+                "جاري تحميل ملفات اللعبة...";
+
+        }
+
+        else if (percent < 60) {
+
+            downloadText.innerText =
+                "جاري تحميل الملاعب...";
+
+        }
+
+        else if (percent < 85) {
+
+            downloadText.innerText =
+                "جاري تحميل اللاعبين...";
+
+        }
+
+        else {
+
+            downloadText.innerText =
+                "جاري تثبيت ملفات اللعبة...";
+
+        }
+
+
+        if (
+            percent === 25 ||
+            percent === 50 ||
+            percent === 75 ||
+            percent === 100
+        ) {
+
+            beep(700);
+
+        }
+
+
+        setTimeout(
+            function() {
+
+                downloadGame(
+                    percent + 1
+                );
+
+            },
+            55
+        );
+
+    }
+
+    else {
+
+        setTimeout(
+            startSystemScan,
+            1200
+        );
+
+    }
+
+}
+
+
+/* الانتقال للفحص */
+
+function startSystemScan() {
+
+    downloadScreen.style.display =
+        "none";
+
+    systemScreen.style.display =
+        "block";
+
+    scanSystem();
+
+}
+
+
+/* رسائل الفحص */
+
+const messages = [
+
+    "جاري فحص ملفات النظام...",
+
+    "جاري تحليل النظام...",
+
+    "جاري اكتشاف التهديدات...",
+
+    "جاري التحقق من الحماية..."
+
+];
+
+
+/* الفحص */
+
+function scanSystem(i = 0) {
+
+    if (i <= 100) {
+
+        systemPercent.innerText =
+            i + "%";
+
+        systemProgress.style.width =
+            i + "%";
+
+        systemStatus.innerText =
+            messages[
+                i % messages.length
+            ];
+
+
+        if (
+            i === 25 ||
+            i === 50 ||
+            i === 75 ||
+            i === 100
+        ) {
+
+            beep(1000);
+
+        }
+
+
+        setTimeout(
+            function() {
+
+                scanSystem(i + 1);
+
+            },
+            70
+        );
+
+    }
+
+    else {
+
+        hacked();
+
+    }
+
+}
+
+
+/* التحذير الوهمي */
+
+function hacked() {
+
+    systemStatus.innerText =
+        "تم اختراق جهازك!";
+
+    systemStatus.style.color =
+        "red";
+
+    systemPercent.innerText =
+        "SYSTEM HACKED";
+
+    systemPercent.style.color =
+        "red";
+
+    beep(1500);
+
+    setTimeout(
+        openFakeWindows,
+        2000
+    );
+
+}
+
+
+/* نوافذ وهمية */
+
+function openFakeWindows() {
+
+    const positions = [
+
+        [40, 60],
+        [420, 100],
+        [170, 330],
+        [700, 250],
+        [850, 70]
+
+    ];
+
+
+    positions.forEach(
+        function(pos, index) {
+
+            setTimeout(
+                function() {
+
+                    const win =
+                        document.createElement(
+                            "div"
+                        );
+
+                    win.className =
+                        "fakeWindow";
+
+                    win.style.left =
+                        pos[0] + "px";
+
+                    win.style.top =
+                        pos[1] + "px";
+
+                    win.innerHTML =
+                        "<b>⚠ SYSTEM WARNING</b><br><br>" +
+                        "Connection #" +
+                        (index + 1) +
+                        "<br><br>" +
+                        "SYSTEM ACCESS...";
+
+                    document.body.appendChild(
+                        win
+                    );
+
+                    beep(1200);
+
+                },
+                index * 500
+            );
+
+        }
+    );
+
+
+    setTimeout(
+        finalMessage,
+        5000
+    );
+
+}
+
+
+/* النهاية */
+
+function finalMessage() {
+
+    document
+        .querySelectorAll(".fakeWindow")
+        .forEach(
+            function(win) {
+
+                win.remove();
+
+            }
+        );
+
+
+    systemScreen.style.display =
+        "none";
+
+    finalScreen.style.display =
+        "flex";
+
+}
+
+</script>
+
+</body>
+</html>
